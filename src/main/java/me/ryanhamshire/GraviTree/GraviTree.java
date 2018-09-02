@@ -31,6 +31,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bstats.bukkit.Metrics;
 
 public class GraviTree extends JavaPlugin implements Listener
 {
@@ -99,7 +100,10 @@ public class GraviTree extends JavaPlugin implements Listener
         {
             PlayerData.Preload(player);
         }
-	}
+
+        Metrics metrics = new Metrics(this);
+
+    }
 	
 	public void onDisable()
 	{
