@@ -1,6 +1,8 @@
 name: GraviTree
 main: me.ryanhamshire.GraviTree.GraviTree
-version: 2.8.0
+version: 2.8.2
+authors: ['Big_Scary', 'RoboMWM']
+version: ${project.version}
 api-version: 1.13
 commands:
    treesfall:
