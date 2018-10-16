@@ -66,5 +66,6 @@ tasks.xml
 .idea/copyright
 out/
 target/
+dependency-reduced-pom.xml
 *.MF
 *.name
