@@ -3,12 +3,16 @@ package me.ryanhamshire.GraviTree;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Logger;
 
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.Tag;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.WorldBorder;
@@ -93,17 +97,18 @@ public class GraviTree extends JavaPlugin implements Listener
 	    
 	    //register for events
 		this.getServer().getPluginManager().registerEvents(this, this);
-		
-		@SuppressWarnings("unchecked")
-        Collection<Player> players = (Collection<Player>)this.getServer().getOnlinePlayers();
-        for(Player player : players)
+
+        for(Player player : this.getServer().getOnlinePlayers())
         {
             PlayerData.Preload(player);
         }
 
-        Metrics metrics = new Metrics(this);
-
-    }
+        try
+        {
+            new Metrics(this);
+        }
+        catch (Throwable ignored){}
+	}
 	
 	public void onDisable()
 	{
@@ -162,7 +167,6 @@ public class GraviTree extends JavaPlugin implements Listener
         PlayerData.FromPlayer(player).saveChanges();
     }
 	
-    @SuppressWarnings("deprecation")
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     void onBlockBreak(BlockBreakEvent event)
     {
@@ -247,12 +251,9 @@ public class GraviTree extends JavaPlugin implements Listener
         if(!this.blockIsTreeTopper(aboveBlock)) return;
         
         int radius = 20;
-        if(brokenBlock.getType() == Material.DARK_OAK_LOG || brokenBlock.getType() == Material.ACACIA_LOG || brokenBlock.getType() == Material.SPRUCE_LOG)
+        if(brokenBlock.getType() == Material.DARK_OAK_LOG)
         {
-            if(brokenBlock.getData() == 1)
-            {
-                radius = 2;
-            }
+            radius = 2;
         }
         FallTask fallTask = new FallTask(brokenBlock, true, bestUnderBlock.getX() - radius, bestUnderBlock.getX() + radius, bestUnderBlock.getZ() - radius, bestUnderBlock.getZ() + radius, player);
         Bukkit.getScheduler().runTaskLater(GraviTree.instance, fallTask, 1L);
@@ -269,7 +270,7 @@ public class GraviTree extends JavaPlugin implements Listener
         Block faceBlock = ((Player)(event.getEntity())).getEyeLocation().getBlock();
         
         Material type = faceBlock.getType();
-        if(type == Material.OAK_LOG || type == Material.JUNGLE_LOG || type == Material.ACACIA_LOG || type == Material.BIRCH_LOG || type == Material.DARK_OAK_LOG || type == Material.SPRUCE_LOG || type == Material.AIR)
+        if(Tag.LOGS.isTagged(type) || type == Material.AIR)
         {
             WorldBorder border = faceBlock.getWorld().getWorldBorder();
             if(border != null)
@@ -317,83 +318,44 @@ public class GraviTree extends JavaPlugin implements Listener
 
     private static boolean blockIsLog(Block block)
     {
-        switch (block.getType()) {
-            case OAK_LOG:
-            case JUNGLE_LOG:
-            case ACACIA_LOG:
-            case BIRCH_LOG:
-            case DARK_OAK_LOG:
-            case SPRUCE_LOG:
-            case OAK_WOOD:
-            case JUNGLE_WOOD:
-            case ACACIA_WOOD:
-            case BIRCH_WOOD:
-            case DARK_OAK_WOOD:
-            case SPRUCE_WOOD:
-                return true;
+        Material type = block.getType();
+        if(Tag.LOGS.isTagged(type))
+        {
+            return true;
         }
         return false;
     }
+
+    private Set<Material> unglazedTerracotta = new HashSet<>();
     
     private boolean blockIsRootType(Block block)
     {
-        switch (block.getType()) {
-            case DIRT:
-            case GRASS_BLOCK:
-            case STONE:
-            case GRANITE:
-            case DIORITE:
-            case ANDESITE:
-            case COBBLESTONE:
-            case CLAY:
-            case SAND:
-            case TERRACOTTA:
-                return true;
+        Material type = block.getType();
+        if(type == Material.DIRT || type == Material.GRASS || type == Material.STONE || type == Material.COBBLESTONE || ExtraTags.TERRACOTTA.isTagged(type) || type == Material.SAND)
+        {
+            return true;
         }
-//GraviTree.AddLogEntry("not root type " + block.getType().name());
-        return false;
+//GraviTree.AddLogEntry("not root type " + type.name());
+            return false;
     }
     
     private boolean blockIsTreeTopper(Block block)
     {
-        switch (block.getType()) {
-            case OAK_LEAVES:
-            case SPRUCE_LEAVES:
-            case BIRCH_LEAVES:
-            case JUNGLE_LEAVES:
-            case ACACIA_LEAVES:
-            case DARK_OAK_LEAVES:
-            case AIR:
-            case SNOW:
-                return true;
+        Material type = block.getType();
+        if(Tag.LEAVES.isTagged(type) || type == Material.AIR || type == Material.SNOW)
+        {
+            return true;
         }
-//GraviTree.AddLogEntry("not tree topper " + block.getType().name());
-        return false;
+//GraviTree.AddLogEntry("not tree topper " + type.name());
+            return false;
     }
     
     private static boolean blockIsPassthrough(Block block)
     {
-        switch (block.getType()) {
-            case OAK_LEAVES:
-            case SPRUCE_LEAVES:
-            case BIRCH_LEAVES:
-            case JUNGLE_LEAVES:
-            case ACACIA_LEAVES:
-            case DARK_OAK_LEAVES:
-            case OAK_LOG:
-            case JUNGLE_LOG:
-            case ACACIA_LOG:
-            case BIRCH_LOG:
-            case DARK_OAK_LOG:
-            case SPRUCE_LOG:
-            case OAK_WOOD:
-            case JUNGLE_WOOD:
-            case ACACIA_WOOD:
-            case BIRCH_WOOD:
-            case DARK_OAK_WOOD:
-            case SPRUCE_WOOD:
-            case SNOW:
-                return true;
+        Material type = block.getType();
+        if(Tag.LEAVES.isTagged(type) || Tag.LOGS.isTagged(type) || type == Material.SNOW)
+        {
+            return true;
         }
         return false;
     }
@@ -402,46 +364,20 @@ public class GraviTree extends JavaPlugin implements Listener
     {
         if(block.getY() < 0) return false;
         
-        switch (block.getType()) {
-            case OAK_LEAVES:
-            case SPRUCE_LEAVES:
-            case BIRCH_LEAVES:
-            case JUNGLE_LEAVES:
-            case ACACIA_LEAVES:
-            case DARK_OAK_LEAVES:
-            case AIR:
-            case VINE:
-            case COCOA:
-            case TORCH:
-            case SNOW:
-                return true;
+        Material type = block.getType();
+        if(Tag.LEAVES.isTagged(type) || type == Material.AIR || type == Material.VINE || type == Material.COCOA || type == Material.TORCH || type == Material.SNOW)
+        {
+            return true;
         }
         return false;
     }
     
     static boolean blockIsTreeAdjacent(Block block)
     {
-        switch (block.getType()) {
-            case OAK_LEAVES:
-            case SPRUCE_LEAVES:
-            case BIRCH_LEAVES:
-            case JUNGLE_LEAVES:
-            case ACACIA_LEAVES:
-            case DARK_OAK_LEAVES:
-            case AIR:
-            case VINE:
-            case COCOA:
-            case TORCH:
-            case SNOW:
-            case GRASS_BLOCK:
-            case DIRT:
-            case STONE:
-            case GRANITE:
-            case DIORITE:
-            case ANDESITE:
-            case COBBLESTONE:
-            case TALL_GRASS:
-                return true;
+        Material type = block.getType();
+        if(Tag.LEAVES.isTagged(type) || type == Material.AIR || type == Material.VINE || type == Material.COCOA || type == Material.TORCH || type == Material.SNOW || type == Material.GRASS || type == Material.DIRT || type == Material.STONE || type == Material.COBBLESTONE || type == Material.TALL_GRASS)
+        {
+            return true;
         }
         return false;
     }
@@ -472,7 +408,6 @@ public class GraviTree extends JavaPlugin implements Listener
         {
             if(GraviTree.blockIsLog(this.blockToDrop))
             {
-                @SuppressWarnings("deprecation")
                 FallingBlock fallingBlock = blockToDrop.getWorld().spawnFallingBlock(blockToDrop.getLocation().add(.5, 0, .5), blockToDrop.getBlockData());
                 fallingBlock.setDropItem(false);
 
