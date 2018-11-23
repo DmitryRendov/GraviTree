@@ -409,7 +409,7 @@ public class GraviTree extends JavaPlugin implements Listener
             if(GraviTree.blockIsLog(this.blockToDrop))
             {
                 FallingBlock fallingBlock = blockToDrop.getWorld().spawnFallingBlock(blockToDrop.getLocation().add(.5, 0, .5), blockToDrop.getBlockData());
-                fallingBlock.setDropItem(false);
+                fallingBlock.setDropItem(true);
 
                 blockToDrop.setType(Material.AIR);
                 
