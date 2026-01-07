@@ -336,7 +336,8 @@ public class GraviTree extends JavaPlugin implements Listener
     private static boolean blockIsLog(Block block)
     {
         Material type = block.getType();
-        if(Tag.LOGS.isTagged(type) || type == Material.CRIMSON_STEM || type == Material.WARPED_STEM)
+        if(Tag.LOGS.isTagged(type) || type == Material.CRIMSON_STEM || type == Material.WARPED_STEM || 
+                type == Material.BAMBOO_BLOCK || type == Material.STRIPPED_BAMBOO_BLOCK)
         {
             return true;
         }
@@ -349,7 +350,7 @@ public class GraviTree extends JavaPlugin implements Listener
         if(type == Material.DIRT || type == Material.GRASS_BLOCK || type == Material.STONE ||
                 type == Material.COBBLESTONE || ExtraTags.TERRACOTTA.isTagged(type) || type == Material.SAND ||
                 type == Material.PODZOL || type == Material.NETHERRACK || type == Material.WARPED_NYLIUM ||
-                type == Material.CRIMSON_NYLIUM || type == Material.MANGROVE_ROOTS)
+                type == Material.CRIMSON_NYLIUM || type == Material.MANGROVE_ROOTS || type == Material.PALE_MOSS_BLOCK)
         {
             return true;
         }
@@ -372,7 +373,7 @@ public class GraviTree extends JavaPlugin implements Listener
         Material type = block.getType();
         if(Tag.LEAVES.isTagged(type) || Tag.LOGS.isTagged(type)  || type == Material.SNOW || type == Material.CRIMSON_STEM ||
                 type == Material.WARPED_STEM || type == Material.NETHER_WART_BLOCK || type == Material.WARPED_WART_BLOCK ||
-                type == Material.SHROOMLIGHT)
+                type == Material.SHROOMLIGHT || type == Material.BAMBOO_BLOCK || type == Material.STRIPPED_BAMBOO_BLOCK)
         {
             return true;
         }
